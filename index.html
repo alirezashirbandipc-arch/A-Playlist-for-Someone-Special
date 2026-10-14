@@ -3,65 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گالری رسانه‌ای من</title>
+  <title>دنیای احساس 🎵</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header>
-  <button id="homeBtn" title="خانه">⌂</button>
-  <h1>گالری رسانه‌ای من</h1>
-  <button id="adminBtn" title="مدیریت">👤</button>
-</header>
+  <header>
+    <h1>🎧 دنیای احساس</h1>
+    <button id="loginBtn" aria-label="ورود مدیر">👤</button>
+  </header>
 
-<main>
-  <section id="loginPanel" class="panel hidden">
-    <h2>ورود مدیریت</h2>
-    <input id="username" placeholder="نام کاربری">
-    <input id="password" type="password" placeholder="رمز عبور">
-    <button id="loginBtn">ورود</button>
+  <main>
+    <section id="section1" class="music-section">
+      <h2>🎵 تیتر یک | آهنگ‌ها</h2>
+      <div id="musicList"></div>
+      <audio id="audioPlayer" controls></audio>
+    </section>
+
+    <section id="section2" class="music-section">
+      <h2>🖤 تیتر دو | حرف‌های احساسی</h2>
+      <div id="emotionalList"></div>
+    </section>
+  </main>
+
+  <dialog id="loginDialog">
+    <h2>ورود مدیر</h2>
+    <form id="loginForm">
+      <input id="username" placeholder="نام کاربری" required>
+      <input id="password" type="password" placeholder="رمز عبور" required>
+      <button type="submit">ورود</button>
+      <button type="button" id="closeLogin">بستن</button>
+    </form>
     <p id="loginMessage"></p>
-  </section>
+  </dialog>
 
-  <section id="adminPanel" class="panel hidden">
-    <h2>مدیریت رسانه‌ها</h2>
+  <section id="adminPanel" hidden>
+    <h2>⚙️ پنل مدیریت</h2>
 
-    <label class="upload">
-      📷 افزودن عکس یا فیلم
-      <input id="mediaInput" type="file" accept="image/*,video/*" multiple hidden>
+    <label>
+      تیتر یک:
+      <input type="checkbox" id="toggleMusic" checked>
     </label>
 
-    <label class="upload">
-      🎵 افزودن صدا
-      <input id="audioInput" type="file" accept="audio/*" multiple hidden>
+    <label>
+      تیتر دو:
+      <input type="checkbox" id="toggleEmotional" checked>
     </label>
 
-    <button id="addTextBtn">📝 افزودن متن</button>
+    <hr>
+
+    <h3>افزودن آهنگ</h3>
+    <form id="musicForm">
+      <input id="songTitle" placeholder="نام آهنگ" required>
+      <input id="artistName" placeholder="نام خواننده" required>
+      <input id="songUrl" type="url" placeholder="لینک فایل صوتی" required>
+      <input id="coverUrl" type="url" placeholder="لینک تصویر کاور">
+      <button type="submit">افزودن آهنگ</button>
+    </form>
+
+    <hr>
+
+    <h3>افزودن محتوای احساسی</h3>
+    <form id="emotionalForm">
+      <input id="contentTitle" placeholder="عنوان محتوا" required>
+      <textarea id="contentText" placeholder="متن احساسی"></textarea>
+      <input id="imageUrl" type="url" placeholder="لینک تصویر">
+      <input id="videoUrl" type="url" placeholder="لینک ویدیو">
+      <input id="voiceUrl" type="url" placeholder="لینک ویس یا صدا">
+      <input id="contentSongUrl" type="url" placeholder="لینک آهنگ اختیاری">
+      <button type="submit">افزودن محتوا</button>
+    </form>
+
     <button id="logoutBtn">خروج از مدیریت</button>
-    <button id="deleteBtn" class="danger">حذف رسانه</button>
   </section>
 
-  <section class="panel">
-    <h2>🖼️ عکس و فیلم</h2>
-    <div id="mediaFrame" class="media-frame">
-      <p>یک عکس یا فیلم انتخاب کن</p>
-    </div>
-    <div id="mediaGallery" class="gallery"></div>
-  </section>
-
-  <section class="panel">
-    <h2>🎵 بخش صدا</h2>
-    <div id="audioGallery" class="audio-gallery"></div>
-  </section>
-
-  <section class="panel">
-    <h2>📝 نوشته‌ها</h2>
-    <div id="textGallery"></div>
-  </section>
-</main>
-
-<footer>ساخته‌شده با ❤️</footer>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
