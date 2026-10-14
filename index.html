@@ -3,34 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>دنیای احساس 🎵</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
-</head>
-<body data-page="home">
+  <title>پنل مدیریت | دنیای احساس</title>
 
-  <header class="header">
-    <h1>🎧 دنیای احساس</h1>
-    <a class="button" href="admin.html">👤 ورود مدیر</a>
-  </header>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  <main class="container">
-    <section id="musicSection" class="section">
-      <h2>🎵 تیتر یک | آهنگ‌ها</h2>
-      <div id="musicList"></div>
-    </section>
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: Tahoma, Arial, sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #17152e, #43264e, #173b46);
+    }
 
-    <section id="emotionSection" class="section">
-      <h2>🖤 تیتر دو | دنیای احساس</h2>
-      <div id="emotionList"></div>
-    </section>
+    .box {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 25px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid #765b8e;
+      border-radius: 18px;
+    }
 
-    <p id="emptyMessage" hidden>هنوز محتوایی منتشر نشده است.</p>
-  </main>
+    h1, h2 {
+      color: #e4c6ff;
+    }
 
-  <footer>
-    ساخته‌شده با ❤️ برای دنیای احساس
-  </footer>
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 15px;
+    }
 
-</body>
-</html>
+    input, textarea {
+      color: white;
+      background: #211d32;
+      border: 1px solid #806a91;
+    }
+
+    button {
+      color: white;
+      background: #8154c5;
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #a477e7;
