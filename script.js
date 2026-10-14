@@ -69,3 +69,45 @@ async function deleteMedia() {
     alert("حذف انجام نشد؛ کد را بررسی کن");
   }
 }
+async function deleteMedia() {
+  if (!isAdmin) {
+    alert("ابتدا وارد مدیریت شو");
+    return;
+  }
+
+  try {
+    const items = await databaseAction(
+      "readonly",
+      store => store.getAll()
+    );
+
+    const media = items.filter(item =>
+      item.type &&
+      (
+        item.type.startsWith("image/") ||
+        item.type.startsWith("video/")
+      )
+    );
+
+    if (media.length === 0) {
+      alert("عکس یا فیلمی برای حذف وجود ندارد");
+      return;
+    }
+
+    const list = media
+      .map((item, index) => ${index + 1}. ${item.name})
+      .join("\n");
+
+    const answer = prompt(
+      "شماره عکس یا فیلم را برای حذف وارد کن:\n\n" + list
+    );
+
+    if (answer === null || answer.trim() === "") {
+      return;
+    }
+
+    const number = Number(answer);
+
+    if (
+      !Number.isInteger(number) ||
+      number < 1 ||
