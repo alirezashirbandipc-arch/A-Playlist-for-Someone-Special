@@ -1,91 +1,320 @@
-.media-card audio {
-  display: block;
-  width: calc(100% - 20px);
-  margin: 15px auto;
+const DB_NAME = "MyMediaWebsiteV2";
+const STORE_NAME = "items";
+const MAX_ITEMS = 100;
+
+let db;
+let isAdmin = false;
+let currentSection = "all";
+
+const grid = document.getElementById("mediaGrid");
+const emptyMessage = document.getElementById("emptyMessage");
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    if (!("indexedDB" in window)) {
+      reject(new Error("مرورگر شما ذخیره‌سازی لازم را پشتیبانی نمی‌کند."));
+      return;
+    }
+
+    const request = indexedDB.open(DB_NAME, 1);
+
+    request.onupgradeneeded = () => {
+      const database = request.result;
+
+      if (!database.objectStoreNames.contains(STORE_NAME)) {
+        database.createObjectStore(STORE_NAME, {
+          keyPath: "id",
+          autoIncrement: true
+        });
+      }
+    };
+
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
 }
 
-.card-info {
-  padding: 14px;
+function getAllItems() {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction(STORE_NAME, "readonly")
+      .objectStore(STORE_NAME)
+      .getAll();
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
 }
 
-.card-info h3 {
-  margin: 8px 0;
-  overflow-wrap: anywhere;
-  font-size: 15px;
+function saveItem(item) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const items = await getAllItems();
+
+      if (items.length >= MAX_ITEMS) {
+        alert("حداکثر ۱۰۰ مورد می‌توانی ثبت کنی.");
+        resolve(false);
+        return;
+      }
+
+      const transaction = db.transaction(STORE_NAME, "readwrite");
+      transaction.objectStore(STORE_NAME).add(item);
+
+      transaction.oncomplete = () => resolve(true);
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
-.card-info p {
-  color: var(--muted);
-  overflow-wrap: anywhere;
-  line-height: 1.8;
+function deleteItem(id) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    transaction.objectStore(STORE_NAME).delete(id);
+
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
 }
 
-.card-delete {
-  border: 0;
-  border-radius: 10px;
-  padding: 9px 14px;
-  margin: 5px;
-  background: #7d2949;
-  color: white;
+function toggleLogin() {
+  document.getElementById("loginPanel").classList.toggle("hidden");
 }
 
-.card-download {
-  display: inline-block;
-  padding: 9px 14px;
-  border-radius: 10px;
-  margin: 5px;
-  background: #393064;
-  color: white;
-  text-decoration: none;
-  font-size: 13px;
+function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("loginMessage");
+
+  // اطلاعات ورود نمونه؛ برای سایت عمومی باید ورود امن سمت سرور ساخته شود.
+  if (username === "admin" && password === "13861386") {
+    isAdmin = true;
+    document.getElementById("adminPanel").classList.remove("hidden");
+    document.getElementById("loginPanel").classList.add("hidden");
+    message.textContent = "";
+    renderItems();
+  } else {
+    message.textContent = "نام کاربری یا رمز عبور درست نیست.";
+  }
 }
 
-.empty-message {
-  color: var(--muted);
-  padding: 30px 10px;
+function logout() {
+  isAdmin = false;
+  document.getElementById("adminPanel").classList.add("hidden");
 }
 
-footer {
-  color: var(--muted);
-  padding: 35px 10px;
-  font-size: 13px;
+function showHome() {
+  currentSection = "all";
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  document.querySelector(".tab").classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  renderItems();
 }
 
-footer span {
-  color: var(--pink);
-  margin: 0 8px;
+function showSection(section, button) {
+  currentSection = section;
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  button.classList.add("active");
+  renderItems();
 }
 
-.hidden {
-  display: none !important;
+function showTextForm() {
+  document.getElementById("textForm").classList.toggle("hidden");
 }
 
-@media (max-width: 520px) {
-  .container {
-    width: calc(100% - 20px);
-    margin-top: 16px;
+document.getElementById("mediaInput").addEventListener("change", async event => {
+  await uploadFile(event.target.files[0], "media");
+  event.target.value = "";
+});
+
+document.getElementById("audioInput").addEventListener("change", async event => {
+  await uploadFile(event.target.files[0], "audio");
+  event.target.value = "";
+});
+
+async function uploadFile(file, kind) {
+  if (!isAdmin) {
+    alert("ابتدا وارد حساب مدیر شو.");
+    return;
   }
 
-  .hero {
-    min-height: 210px;
-    padding: 24px 15px;
+  if (!file) return;
+const isAudio = file.type.startsWith("audio/");
+  const isImage = file.type.startsWith("image/");
+  const isVideo = file.type.startsWith("video/");
+
+  if (kind === "audio" && !isAudio) {
+    alert("لطفاً یک فایل صوتی انتخاب کن.");
+    return;
   }
 
-  .hero-art {
-    font-size: 48px;
+  if (kind === "media" && !isImage && !isVideo) {
+    alert("لطفاً عکس یا فیلم انتخاب کن.");
+    return;
   }
 
-  .login-card,
-  .admin-panel,
-  .featured {
-    padding: 17px 12px;
-  }
+  try {
+    const ok = await saveItem({
+      kind: kind === "audio" ? "audio" : isImage ? "image" : "video",
+      name: file.name,
+      type: file.type,
+      blob: file,
+      createdAt: Date.now()
+    });
 
-  .media-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    padding: 12px;
+    if (ok) {
+      await renderItems();
+      alert("رسانه ثبت شد.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("ذخیره انجام نشد. شاید فضای ذخیره‌سازی مرورگر کافی نباشد.");
   }
 }
+
+async function saveText() {
+  if (!isAdmin) {
+    alert("ابتدا وارد حساب مدیر شو.");
+    return;
+  }
+
+  const title = document.getElementById("textTitle").value.trim();
+  const content = document.getElementById("textContent").value.trim();
+
+  if (!title || !content) {
+    alert("عنوان و متن را وارد کن.");
+    return;
+  }
+
+  try {
+    const ok = await saveItem({
+      kind: "text",
+      name: title,
+      content,
+      createdAt: Date.now()
+    });
+
+    if (ok) {
+      document.getElementById("textTitle").value = "";
+      document.getElementById("textContent").value = "";
+      document.getElementById("textForm").classList.add("hidden");
+      await renderItems();
+      alert("نوشته ثبت شد.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("ثبت نوشته انجام نشد.");
+  }
+}
+
+async function removeItem(id) {
+  if (!isAdmin) {
+    alert("برای حذف باید وارد حساب مدیر شوی.");
+    return;
+  }
+
+  if (!confirm("این مورد حذف شود؟")) return;
+
+  try {
+    await deleteItem(id);
+    await renderItems();
+  } catch (error) {
+    console.error(error);
+    alert("حذف انجام نشد.");
+  }
+}
+
+async function renderItems() {
+  if (!db) return;
+
+  const items = await getAllItems();
+
+  grid.replaceChildren();
+
+  const filtered = items.filter(item => {
+    if (currentSection === "all") return true;
+    if (currentSection === "media") {
+      return item.kind === "image" || item.kind === "video";
+    }
+    return item.kind === currentSection;
+  });
+
+  emptyMessage.classList.toggle("hidden", filtered.length !== 0);
+
+  filtered.reverse().forEach(item => {
+    const card = document.createElement("article");
+    card.className = "media-card";
+
+    if (item.kind === "image"  item.kind === "video"  item.kind === "audio") {
+      const url = URL.createObjectURL(item.blob);
+
+      if (item.kind === "image") {
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = item.name;
+        img.loading = "lazy";
+        card.appendChild(img);
+      }
+
+      if (item.kind === "video") {
+        const video = document.createElement("video");
+        video.src = url;
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        card.appendChild(video);
+      }
+
+      if (item.kind === "audio") {
+        const audio = document.createElement("audio");
+        audio.src = url;
+        audio.controls = true;
+        audio.preload = "metadata";
+        card.appendChild(audio);
+      }
+    }
+
+    const info = document.createElement("div");
+    info.className = "card-info";
+
+    const title = document.createElement("h3");
+    title.textContent = item.name || "بدون عنوان";
+    info.appendChild(title);
+
+    if (item.kind === "text") {
+      const content = document.createElement("p");
+      content.textContent = item.content;
+      info.appendChild(content);
+    }
+
+    if (isAdmin) {
+      const removeButton = document.createElement("button");
+      removeButton.className = "card-delete";
+      removeButton.textContent = "🗑️ حذف";
+      removeButton.addEventListener("click", () => removeItem(item.id));
+      info.appendChild(removeButton);
+    }
+
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+}
+openDatabase()
+  .then(() => renderItems())
+  .catch(error => {
+    console.error(error);
+    alert("پایگاه ذخیره‌سازی باز نشد. سایت را در مرورگر اصلی باز کن.");
+  })
