@@ -1,70 +1,48 @@
-renderGallery();
-    alert("ثبت شد");
-  };
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>سایت رسانه‌ای من</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-  reader.readAsDataURL(selectedFile);
-}
+<button id="loginIcon" onclick="login()">♙</button>
 
-function renderGallery() {
-  const gallery = document.getElementById("gallery");
-  gallery.replaceChildren();
+<div class="container">
+  <h1>گالری رسانه‌ای من</h1>
 
-  mediaItems.forEach((item, index) => {
-    let element;
+  <div class="media-frame" id="mediaFrame">
+    <div class="placeholder">هنوز عکسی یا فیلمی ثبت نشده است</div>
+  </div>
 
-    if (item.type.startsWith("video/")) {
-      element = document.createElement("video");
-      element.muted = true;
-    } else {
-      element = document.createElement("img");
-    }
+  <div id="adminPanel" class="buttons">
+    <button class="add" onclick="document.getElementById('fileInput').click()">＋</button>
+    <button class="save" onclick="saveMedia()">ثبت</button>
+    <button class="delete" onclick="deleteMedia()">حذف</button>
+  </div>
 
-    element.src = item.data;
-    element.className = "thumb";
+  <input type="file" id="fileInput" accept="image/*,video/*">
 
-    element.onclick = function() {
-      showPreview(item.data, item.type);
-    };
+  <h2>گالری عکس و فیلم</h2>
+  <div id="gallery"></div>
 
-    gallery.appendChild(element);
-  });
-}
+  <div class="audio-panel">
+    <h2>بخش صوت</h2>
+    <input type="file" id="audioInput" accept="audio/*">
+    <button class="save" onclick="saveAudio()">ثبت صوت</button>
+    <div id="audioGallery" class="media-list"></div>
+  </div>
 
-function deleteMedia() {
-  if (!isAdmin) return;
+  <div class="text-panel">
+    <h2>بخش متن</h2>
+    <textarea id="textInput" maxlength="10000" placeholder="متن خود را بنویس..."></textarea>
+    <button class="save" onclick="saveText()">ثبت متن</button>
+    <div id="textGallery" class="media-list"></div>
+  </div>
+</div>
 
-  const gallery = document.getElementById("gallery");
-
-  if (mediaItems.length === 0) {
-    alert("موردی برای حذف وجود ندارد");
-    return;
-  }
-
-  const answer = prompt(
-    "شماره عکس یا فیلم برای حذف را وارد کن:\n" +
-    mediaItems.map((item, i) => (i + 1) + ". " + item.name).join("\n")
-  );
-
-  if (answer === null) return;
-
-  const index = Number(answer) - 1;
-
-  if (!Number.isInteger(index)  index < 0 
-      index >= mediaItems.length) {
-    alert("شماره نامعتبر است");
-    return;
-  }
-
-  mediaItems.splice(index, 1);
-  renderGallery();
-
-  document.getElementById("mediaFrame").innerHTML =
-    '<div class="placeholder">یک عکس یا فیلم انتخاب کن</div>';
-
-  alert("حذف شد");
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
-<link rel="stylesheet" href="styles.css">
