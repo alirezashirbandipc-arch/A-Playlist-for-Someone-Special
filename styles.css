@@ -1,69 +1,198 @@
-renderGallery();
-    alert("ثبت شد");
-  };
-
-  reader.readAsDataURL(selectedFile);
+* {
+  box-sizing: border-box;
 }
 
-function renderGallery() {
-  const gallery = document.getElementById("gallery");
-  gallery.replaceChildren();
-
-  mediaItems.forEach((item, index) => {
-    let element;
-
-    if (item.type.startsWith("video/")) {
-      element = document.createElement("video");
-      element.muted = true;
-    } else {
-      element = document.createElement("img");
-    }
-
-    element.src = item.data;
-    element.className = "thumb";
-
-    element.onclick = function() {
-      showPreview(item.data, item.type);
-    };
-
-    gallery.appendChild(element);
-  });
+:root {
+  --background: #0b1020;
+  --panel: #151d32;
+  --primary: #7965ff;
+  --success: #19c784;
+  --danger: #ff4d67;
+  --text: #f5f7ff;
+  --muted: #a7b0c7;
 }
 
-function deleteMedia() {
-  if (!isAdmin) return;
-
-  const gallery = document.getElementById("gallery");
-
-  if (mediaItems.length === 0) {
-    alert("موردی برای حذف وجود ندارد");
-    return;
-  }
-
-  const answer = prompt(
-    "شماره عکس یا فیلم برای حذف را وارد کن:\n" +
-    mediaItems.map((item, i) => (i + 1) + ". " + item.name).join("\n")
-  );
-
-  if (answer === null) return;
-
-  const index = Number(answer) - 1;
-
-  if (!Number.isInteger(index) index < 0 
-      index >= mediaItems.length) {
-    alert("شماره نامعتبر است");
-    return;
-  }
-
-  mediaItems.splice(index, 1);
-  renderGallery();
-
-  document.getElementById("mediaFrame").innerHTML =
-    '<div class="placeholder">یک عکس یا فیلم انتخاب کن</div>';
-
-  alert("حذف شد");
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, #25204d, var(--background) 50%);
+  color: var(--text);
+  font-family: Tahoma, Arial, sans-serif;
+  direction: rtl;
+  line-height: 1.7;
 }
-</script>
 
-</body>
-</html>
+.container {
+  width: 100%;
+  max-width: 520px;
+  margin: auto;
+  padding: 20px 16px 40px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.media-frame {
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 9 / 12;
+  margin: 20px auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111a2e;
+  border: 1px solid #5144a0;
+  border-radius: 20px;
+}
+
+.media-frame img,
+.media-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #080c16;
+}
+
+.placeholder {
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+button {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.buttons button {
+  flex: 1;
+}
+
+.add {
+  background: #303b58;
+  color: white;
+  font-size: 22px;
+}
+
+.save {
+  background: var(--success);
+  color: white;
+}
+
+.delete {
+  background: var(--danger);
+  color: white;
+}
+
+#adminPanel {
+  display: none;
+}
+
+#loginIcon {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: var(--panel);
+  color: white;
+  border: 1px solid #303b58;
+  font-size: 20px;
+}
+
+#fileInput,
+#audioInput {
+  display: none;
+}
+
+#gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.thumb {
+  width: 100%;
+  aspect-ratio: 9 / 12;
+  object-fit: cover;
+  background: #202b45;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.panel,
+.audio-panel,
+.text-panel {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--panel);
+  border: 1px solid #303b58;
+  border-radius: 16px;
+}
+
+.audio-panel audio {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.media-item {
+  padding: 12px;
+  background: #202b45;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.media-item button {
+  margin-top: 8px;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  margin: 10px 0;
+  resize: vertical;
+  background: #111a2e;
+  color: white;
+  border: 1px solid #303b58;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px 12px 30px;
+  }
+
+  .media-frame {
+    max-width: 100%;
+  }
+}
