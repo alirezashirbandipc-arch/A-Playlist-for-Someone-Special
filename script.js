@@ -1,105 +1,126 @@
-emotionalList.appendChild(card);
-  });
-}
-
 function renderSettings() {
-  $("section1").hidden = !settings.music;
-  $("section2").hidden = !settings.emotional;
+  const musicSection = $("musicSection");
+  const emotionSection = $("emotionSection");
 
-  $("toggleMusic").checked = settings.music;
-  $("toggleEmotional").checked = settings.emotional;
+  if (musicSection) {
+    musicSection.hidden = !settings.music;
+  }
+
+  if (emotionSection) {
+    emotionSection.hidden = !settings.emotion;
+  }
+
+  const musicToggle = $("musicEnabled");
+  const emotionToggle = $("emotionEnabled");
+
+  if (musicToggle) musicToggle.checked = settings.music;
+  if (emotionToggle) emotionToggle.checked = settings.emotion;
+
+  const empty = $("emptyMessage");
+
+  if (empty) {
+    empty.hidden =
+      (settings.music && songs.length > 0) ||
+      (settings.emotion && emotions.length > 0);
+  }
 }
 
 function renderAll() {
   renderSongs();
-  renderContents();
+  renderEmotions();
   renderSettings();
 }
 
-$("loginBtn").addEventListener("click", () => {
-  $("loginMessage").textContent = "";
-  loginDialog.showModal();
-});
+function setupAdmin() {
+  const loginForm = $("loginForm");
 
-$("closeLogin").addEventListener("click", () => {
-  loginDialog.close();
-});
+  loginForm.addEventListener("submit", event => {
+    event.preventDefault();
 
-$("loginForm").addEventListener("submit", event => {
-  event.preventDefault();
+    /*
+      ورود این نسخه فقط نمایشی است.
+      اطلاعات ورود واقعی را در فایل عمومی قرار نده.
+    */
 
-  /*
-    این ورود فقط نمونه آزمایشی است.
-    برای سایت واقعی، ورود باید در سرور بررسی شود.
-  */
+    const username = $("username").value.trim();
+    const password = $("password").value;
 
-  const username = $("username").value.trim();
-  const password = $("password").value;
+    if (
+      username === "Alireeza" &&
+      password === "ChangeMe-123!"
+    ) {
+      isAdmin = true;
+      $("loginSection").hidden = true;
+      $("adminContent").hidden = false;
+      $("loginMessage").textContent = "";
 
-  if (username === "Alireeza" && password === "ChangeMe-123!") {
-    isAdmin = true;
-    adminPanel.hidden = false;
-    loginDialog.close();
+      renderAll();
+    } else {
+      $("loginMessage").textContent =
+        "نام کاربری یا رمز عبور اشتباه است.";
+    }
+  });
+
+  $("musicForm").addEventListener("submit", event => {
+    event.preventDefault();
+    if (!isAdmin) return;
+
+    songs.push({
+      title: $("songTitle").value.trim(),
+      artist: $("artist").value.trim(),
+      url: $("songUrl").value.trim(),
+      cover: $("coverUrl").value.trim()
+    });
+
+    saveData();
     renderAll();
-  } else {
-    $("loginMessage").textContent = "نام کاربری یا رمز اشتباه است.";
-  }
-});
-
-$("logoutBtn").addEventListener("click", () => {
-  isAdmin = false;
-  adminPanel.hidden = true;
-  renderAll();
-});
-
-$("toggleMusic").addEventListener("change", event => {
-  if (!isAdmin) return;
-
-  settings.music = event.target.checked;
-  saveData();
-  renderSettings();
-});
-
-$("toggleEmotional").addEventListener("change", event => {
-  if (!isAdmin) return;
-
-  settings.emotional = event.target.checked;
-  saveData();
-  renderSettings();
-});
-
-$("musicForm").addEventListener("submit", event => {
-  event.preventDefault();
-  if (!isAdmin) return;
-
-  songs.push({
-    title: $("songTitle").value.trim(),
-    artist: $("artistName").value.trim(),
-    url: $("songUrl").value.trim(),
-    cover: $("coverUrl").value.trim()
+    event.target.reset();
   });
 
-  saveData();
-  renderSongs();
-  event.target.reset();
-});
+  $("emotionForm").addEventListener("submit", event => {
+    event.preventDefault();
+    if (!isAdmin) return;
 
-$("emotionalForm").addEventListener("submit", event => {
-  event.preventDefault();
-  if (!isAdmin) return;
+    emotions.push({
+      title: $("emotionTitle").value.trim(),
+      text: $("emotionText").value.trim(),
+      image: $("emotionImage").value.trim(),
+      video: $("emotionVideo").value.trim(),
+      audio: $("emotionAudio").value.trim(),
+      song: $("emotionSong").value.trim()
+    });
 
-  contents.push({
-    title: $("contentTitle").value.trim(),
-    text: $("contentText").value.trim(),
-    image: $("imageUrl").value.trim(),
-    video: $("videoUrl").value.trim(),
-    voice: $("voiceUrl").value.trim(),
-    song: $("contentSongUrl").value.trim()
+    saveData();
+    renderAll();
+    event.target.reset();
   });
 
-  saveData();
-  renderContents();
-  event.target.reset();
-});
+  $("musicEnabled").addEventListener("change", event => {
+    if (!isAdmin) return;
+
+    settings.music = event.target.checked;
+    saveData();
+    renderSettings();
+  });
+
+  $("emotionEnabled").addEventListener("change", event => {
+    if (!isAdmin) return;
+
+    settings.emotion = event.target.checked;
+    saveData();
+    renderSettings();
+  });
+
+  $("logoutButton").addEventListener("click", () => {
+    isAdmin = false;
+    $("adminContent").hidden = true;
+    $("loginSection").hidden = false;
+    $("loginForm").reset();
+  });
+}
 
 renderAll();
+
+if (document.body.dataset.page === "admin") {
+  setupAdmin();
+}
