@@ -156,4 +156,6 @@ openDatabase()
   .catch(error => {
     console.error(error);
     alert("پایگاه داده باز نشد؛ سایت را در مرورگر به‌روز امتحان کن");
+    if (username === "Alireza" &&
+        password === "13861386") {
   });
