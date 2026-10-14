@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دنیای احساس 🎵</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body data-page="home">
 
+  <header class="header">
+    <h1>🎧 دنیای احساس</h1>
+    <a class="button" href="admin.html">👤 ورود مدیر</a>
+  </header>
+
+  <main class="container">
+    <section id="musicSection" class="section">
+      <h2>🎵 تیتر یک | آهنگ‌ها</h2>
+      <div id="musicList"></div>
+    </section>
+
+    <section id="emotionSection" class="section">
+      <h2>🖤 تیتر دو | دنیای احساس</h2>
+      <div id="emotionList"></div>
+    </section>
+
+    <p id="emptyMessage" hidden>هنوز محتوایی منتشر نشده است.</p>
+  </main>
+
+  <footer>
+    ساخته‌شده با ❤️ برای دنیای احساس
+  </footer>
+
+</body>
+</html>
