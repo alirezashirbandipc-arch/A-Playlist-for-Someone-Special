@@ -1,69 +1,60 @@
-renderGallery();
-    alert("ثبت شد");
-  };
+# ✨ دنیای رسانه من
 
-  reader.readAsDataURL(selectedFile);
-}
+یک سایت زیبا برای نمایش و مدیریت عکس‌ها، فیلم‌ها، آهنگ‌ها و نوشته‌ها.
 
-function renderGallery() {
-  const gallery = document.getElementById("gallery");
-  gallery.replaceChildren();
+## 🌟 امکانات سایت
 
-  mediaItems.forEach((item, index) => {
-    let element;
+- 🏠 دکمه خانه
+- 👤 ورود به بخش مدیریت
+- 🖼️ افزودن و نمایش عکس
+- 🎬 افزودن و پخش فیلم
+- 🎵 افزودن و پخش آهنگ
+- 📝 ثبت و نمایش نوشته‌ها
+- 🗑️ حذف رسانه‌ها
+- 🔢 امکان ثبت حداکثر ۱۰۰ مورد
+- 🌙 طراحی زیبا با پس‌زمینه تیره
+- 📱 سازگار با گوشی و کامپیوتر
+- 🎨 نوشته‌ها و دکمه‌های وسط‌چین
 
-    if (item.type.startsWith("video/")) {
-      element = document.createElement("video");
-      element.muted = true;
-    } else {
-      element = document.createElement("img");
-    }
+## 📂 فایل‌های پروژه
 
-    element.src = item.data;
-    element.className = "thumb";
+این پروژه شامل سه فایل اصلی است:
 
-    element.onclick = function() {
-      showPreview(item.data, item.type);
-    };
+1. index.html — ساختار سایت
+2. styles.css — ظاهر و طراحی سایت
+3. script.js — عملکرد دکمه‌ها و مدیریت رسانه‌ها
 
-    gallery.appendChild(element);
-  });
-}
+## 🔐 ورود مدیر
 
-function deleteMedia() {
-  if (!isAdmin) return;
+نام کاربری نمونه:
 
-  const gallery = document.getElementById("gallery");
+admin
 
-  if (mediaItems.length === 0) {
-    alert("موردی برای حذف وجود ندارد");
-    return;
-  }
+رمز عبور نمونه:
 
-  const answer = prompt(
-    "شماره عکس یا فیلم برای حذف را وارد کن:\n" +
-    mediaItems.map((item, i) => (i + 1) + ". " + item.name).join("\n")
-  );
+13861386
 
-  if (answer === null) return;
+توجه: این ورود برای نمونه است و برای امنیت واقعی باید احراز هویت سمت سرور پیاده‌سازی شود.
 
-  const index = Number(answer) - 1;
+## 💾 ذخیره‌سازی
 
-  if (!Number.isInteger(index) index < 0 
-      index >= mediaItems.length) {
-    alert("شماره نامعتبر است");
-    return;
-  }
+در نسخه فعلی، عکس‌ها، فیلم‌ها و آهنگ‌ها در حافظه مرورگر همان دستگاه ذخیره می‌شوند.
 
-  mediaItems.splice(index, 1);
-  renderGallery();
+برای اینکه رسانه‌های اضافه‌شده برای همه بازدیدکنندگان سایت نمایش داده شوند، باید فضای ذخیره‌سازی آنلاین و سرور یا سرویس مناسب به پروژه متصل شود.
 
-  document.getElementById("mediaFrame").innerHTML =
-    '<div class="placeholder">یک عکس یا فیلم انتخاب کن</div>';
+## 🚀 انتشار سایت
 
-  alert("حذف شد");
-}
-</script>
+برای انتشار سایت می‌توان از GitHub Pages استفاده کرد.
 
-</body>
-</html>
+فایل‌های index.html، styles.css و script.js را در محل درست مخزن قرار بده و سپس از بخش Settings و Pages، انتشار سایت را تنظیم کن.
+
+## 🛠️ فناوری‌ها
+
+- HTML
+- CSS
+- JavaScript
+- IndexedDB
+
+## ❤️ سازنده
+
+ساخته‌شده برای دنیای رسانه من.
