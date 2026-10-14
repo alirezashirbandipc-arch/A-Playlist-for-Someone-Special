@@ -1,161 +1,105 @@
-/*
-   * اطلاعات ورود نمونه‌اند.
-   * برای سایت عمومی از این روش به‌عنوان امنیت واقعی استفاده نکن.
-   */
-  if (username === "admin" && password === "1234") {
+emotionalList.appendChild(card);
+  });
+}
+
+function renderSettings() {
+  $("section1").hidden = !settings.music;
+  $("section2").hidden = !settings.emotional;
+
+  $("toggleMusic").checked = settings.music;
+  $("toggleEmotional").checked = settings.emotional;
+}
+
+function renderAll() {
+  renderSongs();
+  renderContents();
+  renderSettings();
+}
+
+$("loginBtn").addEventListener("click", () => {
+  $("loginMessage").textContent = "";
+  loginDialog.showModal();
+});
+
+$("closeLogin").addEventListener("click", () => {
+  loginDialog.close();
+});
+
+$("loginForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  /*
+    این ورود فقط نمونه آزمایشی است.
+    برای سایت واقعی، ورود باید در سرور بررسی شود.
+  */
+
+  const username = $("username").value.trim();
+  const password = $("password").value;
+
+  if (username === "Alireeza" && password === "ChangeMe-123!") {
     isAdmin = true;
-    $("loginPanel").classList.add("hidden");
-    $("adminPanel").classList.remove("hidden");
-    $("loginMessage").textContent = "";
-    alert("وارد مدیریت شدی");
+    adminPanel.hidden = false;
+    loginDialog.close();
+    renderAll();
   } else {
-    $("loginMessage").textContent =
-      "نام کاربری یا رمز عبور اشتباه است";
+    $("loginMessage").textContent = "نام کاربری یا رمز اشتباه است.";
   }
 });
 
 $("logoutBtn").addEventListener("click", () => {
   isAdmin = false;
-  $("adminPanel").classList.add("hidden");
-  alert("از مدیریت خارج شدی");
+  adminPanel.hidden = true;
+  renderAll();
 });
 
-$("mediaInput").addEventListener("change", async event => {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    event.target.value = "";
-    return;
-  }
+$("toggleMusic").addEventListener("change", event => {
+  if (!isAdmin) return;
 
-  try {
-    for (const file of event.target.files) {
-      await saveFile(file);
-    }
-
-    await renderGallery();
-    alert("عکس یا فیلم اضافه شد");
-  } catch (error) {
-    console.error(error);
-    alert("ذخیره انجام نشد");
-  }
-
-  event.target.value = "";
+  settings.music = event.target.checked;
+  saveData();
+  renderSettings();
 });
 
-$("audioInput").addEventListener("change", async event => {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    event.target.value = "";
-    return;
-  }
+$("toggleEmotional").addEventListener("change", event => {
+  if (!isAdmin) return;
 
-  try {
-    for (const file of event.target.files) {
-      await saveFile(file);
-    }
-
-    await renderAudio();
-    alert("صدا اضافه شد");
-  } catch (error) {
-    console.error(error);
-    alert("ذخیره صدا انجام نشد");
-  }
-
-  event.target.value = "";
+  settings.emotional = event.target.checked;
+  saveData();
+  renderSettings();
 });
 
-$("addTextBtn").addEventListener("click", async () => {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
+$("musicForm").addEventListener("submit", event => {
+  event.preventDefault();
+  if (!isAdmin) return;
 
-  const text = prompt("متن خود را وارد کن:");
-
-  if (text === null || !text.trim()) return;
-
-  const blob = new Blob([text], { type: "text/plain" });
-
-  try {
-    await databaseAction("readwrite", store => store.add({
-      name: "نوشته",
-      type: "text/plain",
-      blob,
-      created: Date.now()
-    }));
-
-    await renderTexts();
-    alert("متن ذخیره شد");
-  } catch (error) {
-    console.error(error);
-    alert("ذخیره متن انجام نشد");
-  }
-});
-
-async function deleteMedia() {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
-
-  try {
-    const items = await databaseAction(
-      "readonly",
-      store => store.getAll()
-    );
-
-    if (!items.length) {
-      alert("رسانه‌ای برای حذف وجود ندارد");
-      return;
-    }
-
-    const answer = prompt(
-      "شماره مورد برای حذف:\n" +
-      items.map((item, i) => ${i + 1}. ${item.name}).join("\n")
-    );
-
-    if (answer === null || answer.trim() === "") return;
-
-    const number = Number(answer);
-
-    if (!Number.isInteger(number)  number < 1  number > items.length) {
-      alert("شماره نامعتبر است");
-      return;
-    }
-
-    await databaseAction(
-      "readwrite",
-      store => store.delete(items[number - 1].id)
-    );
-
-    await renderAll();
-
-    $("mediaFrame").replaceChildren(
-      Object.assign(document.createElement("p"), {
-        textContent: "یک عکس یا فیلم انتخاب کن"
-      })
-    );
-
-    alert("حذف شد");
-  } catch (error) {
-    console.error(error);
-    alert("حذف انجام نشد");
-  }
-}
-
-$("deleteBtn").addEventListener("click", deleteMedia);
-
-$("homeBtn").addEventListener("click", () => {
-  $("loginPanel").classList.add("hidden");
-  $("adminPanel").classList.add("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-openDatabase()
-  .then(renderAll)
-  .catch(error => {
-    console.error(error);
-    alert("پایگاه داده باز نشد؛ سایت را در مرورگر به‌روز امتحان کن");
-    if (username === "Alireza" &&
-        password === "13861386") {
+  songs.push({
+    title: $("songTitle").value.trim(),
+    artist: $("artistName").value.trim(),
+    url: $("songUrl").value.trim(),
+    cover: $("coverUrl").value.trim()
   });
+
+  saveData();
+  renderSongs();
+  event.target.reset();
+});
+
+$("emotionalForm").addEventListener("submit", event => {
+  event.preventDefault();
+  if (!isAdmin) return;
+
+  contents.push({
+    title: $("contentTitle").value.trim(),
+    text: $("contentText").value.trim(),
+    image: $("imageUrl").value.trim(),
+    video: $("videoUrl").value.trim(),
+    voice: $("voiceUrl").value.trim(),
+    song: $("contentSongUrl").value.trim()
+  });
+
+  saveData();
+  renderContents();
+  event.target.reset();
+});
+
+renderAll();
