@@ -3,107 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>پنل مدیریت</title>
+  <title>دنیای احساس 🎵</title>
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
-<body data-page="admin">
+<body data-page="home">
 
   <header class="header">
-    <h1>⚙️ پنل مدیریت</h1>
-    <a class="button" href="index.html">صفحه اصلی</a>
+    <h1>🎧 دنیای احساس</h1>
+    <a class="button" href="admin.html">👤 ورود مدیر</a>
   </header>
 
   <main class="container">
-
-    <section id="loginSection" class="section">
-      <h2>🔐 ورود مدیر</h2>
-
-      <form id="loginForm">
-        <label for="username">نام کاربری</label>
-        <input id="username" autocomplete="username" required>
-
-        <label for="password">رمز عبور</label>
-        <input id="password" type="password"
-               autocomplete="current-password" required>
-
-        <button type="submit">ورود به مدیریت</button>
-        <p id="loginMessage"></p>
-      </form>
+    <section id="musicSection" class="section">
+      <h2>🎵 تیتر یک | آهنگ‌ها</h2>
+      <div id="musicList"></div>
     </section>
 
-    <div id="adminContent" hidden>
+    <section id="emotionSection" class="section">
+      <h2>🖤 تیتر دو | دنیای احساس</h2>
+      <div id="emotionList"></div>
+    </section>
 
-      <section class="section">
-        <h2>🎵 مدیریت تیتر یک</h2>
-
-        <label class="switch-row">
-          نمایش تیتر یک
-          <input type="checkbox" id="musicEnabled">
-        </label>
-
-        <h3>افزودن آهنگ</h3>
-
-        <form id="musicForm">
-          <label for="songTitle">نام آهنگ</label>
-          <input id="songTitle" required>
-
-          <label for="artist">نام خواننده</label>
-          <input id="artist" required>
-
-          <label for="songUrl">لینک مستقیم فایل صوتی</label>
-          <input id="songUrl" type="url" required>
-
-          <label for="coverUrl">لینک تصویر کاور</label>
-          <input id="coverUrl" type="url">
-
-          <button type="submit">➕ افزودن آهنگ</button>
-        </form>
-
-        <h3>آهنگ‌های ثبت‌شده</h3>
-        <div id="adminMusicList"></div>
-      </section>
-
-      <section class="section">
-        <h2>🖤 مدیریت تیتر دو</h2>
-
-        <label class="switch-row">
-          نمایش تیتر دو
-          <input type="checkbox" id="emotionEnabled">
-        </label>
-
-        <h3>افزودن محتوای احساسی</h3>
-
-        <form id="emotionForm">
-          <label for="emotionTitle">عنوان</label>
-          <input id="emotionTitle" required>
-
-          <label for="emotionText">متن احساسی</label>
-          <textarea id="emotionText"></textarea>
-
-          <label for="emotionImage">لینک تصویر</label>
-          <input id="emotionImage" type="url">
-
-          <label for="emotionVideo">لینک مستقیم ویدیو</label>
-          <input id="emotionVideo" type="url">
-
-          <label for="emotionAudio">لینک ویس یا فایل صوتی</label>
-          <input id="emotionAudio" type="url">
-
-          <label for="emotionSong">لینک آهنگ اختیاری</label>
-          <input id="emotionSong" type="url">
-
-          <button type="submit">➕ افزودن محتوا</button>
-        </form>
-
-        <h3>محتواهای ثبت‌شده</h3>
-        <div id="adminEmotionList"></div>
-      </section>
-
-      <button id="logoutButton" type="button">خروج از مدیریت</button>
-    </div>
-
+    <p id="emptyMessage" hidden>هنوز محتوایی منتشر نشده است.</p>
   </main>
+
+  <footer>
+    ساخته‌شده با ❤️ برای دنیای احساس
+  </footer>
 
 </body>
 </html>
