@@ -1,3 +1,97 @@
+/*
+   * اطلاعات ورود نمونه‌اند.
+   * برای سایت عمومی از این روش به‌عنوان امنیت واقعی استفاده نکن.
+   */
+  if (username === "admin" && password === "1234") {
+    isAdmin = true;
+    $("loginPanel").classList.add("hidden");
+    $("adminPanel").classList.remove("hidden");
+    $("loginMessage").textContent = "";
+    alert("وارد مدیریت شدی");
+  } else {
+    $("loginMessage").textContent =
+      "نام کاربری یا رمز عبور اشتباه است";
+  }
+});
+
+$("logoutBtn").addEventListener("click", () => {
+  isAdmin = false;
+  $("adminPanel").classList.add("hidden");
+  alert("از مدیریت خارج شدی");
+});
+
+$("mediaInput").addEventListener("change", async event => {
+  if (!isAdmin) {
+    alert("ابتدا وارد مدیریت شو");
+    event.target.value = "";
+    return;
+  }
+
+  try {
+    for (const file of event.target.files) {
+      await saveFile(file);
+    }
+
+    await renderGallery();
+    alert("عکس یا فیلم اضافه شد");
+  } catch (error) {
+    console.error(error);
+    alert("ذخیره انجام نشد");
+  }
+
+  event.target.value = "";
+});
+
+$("audioInput").addEventListener("change", async event => {
+  if (!isAdmin) {
+    alert("ابتدا وارد مدیریت شو");
+    event.target.value = "";
+    return;
+  }
+
+  try {
+    for (const file of event.target.files) {
+      await saveFile(file);
+    }
+
+    await renderAudio();
+    alert("صدا اضافه شد");
+  } catch (error) {
+    console.error(error);
+    alert("ذخیره صدا انجام نشد");
+  }
+
+  event.target.value = "";
+});
+
+$("addTextBtn").addEventListener("click", async () => {
+  if (!isAdmin) {
+    alert("ابتدا وارد مدیریت شو");
+    return;
+  }
+
+  const text = prompt("متن خود را وارد کن:");
+
+  if (text === null || !text.trim()) return;
+
+  const blob = new Blob([text], { type: "text/plain" });
+
+  try {
+    await databaseAction("readwrite", store => store.add({
+      name: "نوشته",
+      type: "text/plain",
+      blob,
+      created: Date.now()
+    }));
+
+    await renderTexts();
+    alert("متن ذخیره شد");
+  } catch (error) {
+    console.error(error);
+    alert("ذخیره متن انجام نشد");
+  }
+});
+
 async function deleteMedia() {
   if (!isAdmin) {
     alert("ابتدا وارد مدیریت شو");
@@ -10,104 +104,56 @@ async function deleteMedia() {
       store => store.getAll()
     );
 
-    const media = items.filter(item =>
-      item.type &&
-      (
-        item.type.startsWith("image/") ||
-        item.type.startsWith("video/")
-      )
-    );
-
-    if (media.length === 0) {
-      alert("موردی برای حذف وجود ندارد");
+    if (!items.length) {
+      alert("رسانه‌ای برای حذف وجود ندارد");
       return;
     }
 
     const answer = prompt(
-      "شماره عکس یا فیلم برای حذف:\n" +
-      media.map((item, i) => ${i + 1}. ${item.name}).join("\n")
+      "شماره مورد برای حذف:\n" +
+      items.map((item, i) => ${i + 1}. ${item.name}).join("\n")
     );
 
-    if (answer === null || answer.trim() === "") {
-      return;
-    }
+    if (answer === null || answer.trim() === "") return;
 
-    const index = Number(answer) - 1;
+    const number = Number(answer);
 
-    if (
-      !Number.isInteger(Number(answer)) ||
-      index < 0 ||
-      index >= media.length
-    ) {
+    if (!Number.isInteger(number)  number < 1  number > items.length) {
       alert("شماره نامعتبر است");
       return;
     }
 
     await databaseAction(
       "readwrite",
-      store => store.delete(media[index].id)
+      store => store.delete(items[number - 1].id)
     );
 
-    await renderGallery();
+    await renderAll();
 
-    const frame = document.getElementById("mediaFrame");
-
-    if (frame) {
-      frame.replaceChildren();
-
-      const placeholder = document.createElement("div");
-      placeholder.className = "placeholder";
-      placeholder.textContent = "یک عکس یا فیلم انتخاب کن";
-
-      frame.appendChild(placeholder);
-    }
+    $("mediaFrame").replaceChildren(
+      Object.assign(document.createElement("p"), {
+        textContent: "یک عکس یا فیلم انتخاب کن"
+      })
+    );
 
     alert("حذف شد");
-
   } catch (error) {
     console.error(error);
-    alert("حذف انجام نشد؛ کد را بررسی کن");
+    alert("حذف انجام نشد");
   }
 }
-async function deleteMedia() {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
 
-  try {
-    const items = await databaseAction(
-      "readonly",
-      store => store.getAll()
-    );
+$("deleteBtn").addEventListener("click", deleteMedia);
 
-    const media = items.filter(item =>
-      item.type &&
-      (
-        item.type.startsWith("image/") ||
-        item.type.startsWith("video/")
-      )
-    );
+$("homeBtn").addEventListener("click", () => {
+  $("loginPanel").classList.add("hidden");
+  $("adminPanel").classList.add("hidden");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
-    if (media.length === 0) {
-      alert("عکس یا فیلمی برای حذف وجود ندارد");
-      return;
-    }
-
-    const list = media
-      .map((item, index) => ${index + 1}. ${item.name})
-      .join("\n");
-
-    const answer = prompt(
-      "شماره عکس یا فیلم را برای حذف وارد کن:\n\n" + list
-    );
-
-    if (answer === null || answer.trim() === "") {
-      return;
-    }
-
-    const number = Number(answer);
-
-    if (
-      !Number.isInteger(number) ||
-      number < 1 ||
+openDatabase()
+  .then(renderAll)
+  .catch(error => {
+    console.error(error);
+    alert("پایگاه داده باز نشد؛ سایت را در مرورگر به‌روز امتحان کن");
+  });
