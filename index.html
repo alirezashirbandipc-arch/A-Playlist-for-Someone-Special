@@ -1,166 +1,67 @@
-async function deleteMedia() {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>گالری رسانه‌ای من</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-  const items = await databaseAction("readonly", store => store.getAll());
-  const media = items.filter(item =>
-    item.type.startsWith("image/") || item.type.startsWith("video/")
-  );
+<header>
+  <button id="homeBtn" title="خانه">⌂</button>
+  <h1>گالری رسانه‌ای من</h1>
+  <button id="adminBtn" title="مدیریت">👤</button>
+</header>
 
-  if (!media.length) {
-    alert("موردی برای حذف وجود ندارد");
-    return;
-  }
+<main>
+  <section id="loginPanel" class="panel hidden">
+    <h2>ورود مدیریت</h2>
+    <input id="username" placeholder="نام کاربری">
+    <input id="password" type="password" placeholder="رمز عبور">
+    <button id="loginBtn">ورود</button>
+    <p id="loginMessage"></p>
+  </section>
 
-  const answer = prompt(
-    "شماره عکس یا فیلم برای حذف:\n" +
-    media.map((item, i) => ${i + 1}. ${item.name}).join("\n")
-  );
+  <section id="adminPanel" class="panel hidden">
+    <h2>مدیریت رسانه‌ها</h2>
 
-  if (answer === null) return;
+    <label class="upload">
+      📷 افزودن عکس یا فیلم
+      <input id="mediaInput" type="file" accept="image/*,video/*" multiple hidden>
+    </label>
 
-  const index = Number(answer) - 1;
+    <label class="upload">
+      🎵 افزودن صدا
+      <input id="audioInput" type="file" accept="audio/*" multiple hidden>
+    </label>
 
-  if (!Number.isInteger(index)  index < 0  index >= media.length) {
-    alert("شماره نامعتبر است");
-    return;
-  }
+    <button id="addTextBtn">📝 افزودن متن</button>
+    <button id="logoutBtn">خروج از مدیریت</button>
+    <button id="deleteBtn" class="danger">حذف رسانه</button>
+  </section>
 
-  await databaseAction("readwrite", store => store.delete(media[index].id));
-  await renderGallery();
+  <section class="panel">
+    <h2>🖼️ عکس و فیلم</h2>
+    <div id="mediaFrame" class="media-frame">
+      <p>یک عکس یا فیلم انتخاب کن</p>
+    </div>
+    <div id="mediaGallery" class="gallery"></div>
+  </section>
 
-  const frame = document.getElementById("mediaFrame");
-  frame.replaceChildren();
+  <section class="panel">
+    <h2>🎵 بخش صدا</h2>
+    <div id="audioGallery" class="audio-gallery"></div>
+  </section>
 
-  const placeholder = document.createElement("div");
-  placeholder.className = "placeholder";
-  placeholder.textContent = "یک عکس یا فیلم انتخاب کن";
-  frame.appendChild(placeholder);
+  <section class="panel">
+    <h2>📝 نوشته‌ها</h2>
+    <div id="textGallery"></div>
+  </section>
+</main>
 
-  alert("حذف شد");
-}
+<footer>ساخته‌شده با ❤️</footer>
 
-async function saveAudio() {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
-
-  const input = document.getElementById("audioInput");
-  const file = input.files[0];
-
-  if (!file || !file.type.startsWith("audio/")) {
-    alert("یک فایل صوتی انتخاب کن");
-    return;
-  }
-
-  try {
-    const items = await databaseAction("readonly", store => store.getAll());
-
-    if (items.filter(item => item.type.startsWith("audio/")).length >= 100) {
-      alert("ظرفیت صوت تکمیل شده است");
-      return;
-    }
-
-    await databaseAction("readwrite", store =>
-      store.add({
-        name: file.name,
-        type: file.type,
-        data: file
-      })
-    );
-
-    input.value = "";
-    await renderAudio();
-    alert("صوت ثبت شد");
-  } catch (error) {
-    alert("ذخیره صوت انجام نشد");
-    console.error(error);
-  }
-}
-
-async function renderAudio() {
-  const gallery = document.getElementById("audioGallery");
-  gallery.replaceChildren();
-
-  const items = await databaseAction("readonly", store => store.getAll());
-  audioItems = items.filter(item => item.type.startsWith("audio/"));
-
-  audioItems.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "media-item";
-
-    const title = document.createElement("p");
-    title.textContent = item.name;
-
-    const player = document.createElement("audio");
-    player.controls = true;
-    player.src = URL.createObjectURL(item.data);
-
-    row.append(title, player);
-
-    if (isAdmin) {
-      const button = document.createElement("button");
-      button.className = "delete";
-      button.textContent = "حذف صوت";
-      button.onclick = async () => {
-        await databaseAction("readwrite", store => store.delete(item.id));
-        renderAudio();
-      };
-      row.appendChild(button);
-    }
-
-    gallery.appendChild(row);
-  });
-}
-
-async function saveText() {
-  if (!isAdmin) {
-    alert("ابتدا وارد مدیریت شو");
-    return;
-  }
-
-  const input = document.getElementById("textInput");
-  const text = input.value.trim();
-
-  if (!text) {
-    alert("ابتدا متن بنویس");
-    return;
-  }
-
-  try {
-    const items = await databaseAction("readonly", store => store.getAll());
-    if (items.filter(item => item.type === "text/plain").length >= 100) {
-      alert("ظرفیت متن تکمیل شده است");
-      return;
-    }
-
-    await databaseAction("readwrite", store =>
-      store.add({
-        name: "متن",
-        type: "text/plain",
-        data: text
-      })
-    );
-
-    input.value = "";
-    await renderTexts();
-    alert("متن ثبت شد");
-  } catch (error) {
-    alert("ذخیره متن انجام نشد");
-    console.error(error);
-  }
-}
-
-async function renderTexts() {
-  const gallery = document.getElementById("textGallery");
-  gallery.replaceChildren();
-
-  const items = await databaseAction("readonly", store => store.getAll());
-  textItems = items.filter(item => item.type === "text/plain");
-
-  textItems.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "media-item";
+<script src="script.js"></script>
+</body>
+</html>
